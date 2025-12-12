@@ -4,72 +4,117 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains **Project Genesis** - a Claude Code skill for scaffolding complex `.claude/` environments. It creates a "Virtual Team" of sub-agents to kickstart new projects.
+**Project Genesis** transforms a one-sentence project idea into a complete AI development team with coordinated agents, shared memory, and development workflows.
 
-## Usage
+## Commands
 
-Run the `/idea` command with a project description:
-```
-/idea [project_description]
-```
-
-This triggers the Project Genesis protocol which:
-1. Expands your idea into a Genesis Specification (JSON)
-2. Creates the standard `.claude/` directory structure
-3. Generates agents, docs, and commands based on the spec
-4. Hands off to a `/develop` command
+| Command | Purpose |
+|---------|---------|
+| `/idea [description]` | Bootstrap a new project from an idea |
+| `/develop plan` | Break features into tasks |
+| `/develop next` | Start next available task |
+| `/develop [task-id]` | Work on specific task |
+| `/develop review` | Request code review |
+| `/develop status` | Show project progress |
 
 ## Architecture
 
-### Directory Structure
 ```
 .claude/
 ├── commands/
-│   └── idea.md          # Entry point - triggers Project Genesis
+│   ├── idea.md              # Entry point - triggers Project Genesis
+│   └── develop.md           # Main development workflow
 └── skills/
     └── project-genesis/
-        ├── SKILL.md     # Skill definition and capabilities
+        ├── SKILL.md         # Skill definition
         ├── prompts/
-        │   └── expand-idea.md    # Transforms raw idea → Genesis Spec JSON
+        │   ├── expand-idea.md         # Idea → Genesis Spec JSON
+        │   └── agent-personalities.md # Personality design guide
         ├── cookbook/
-        │   └── agent-architecture.md  # Templates for agents/commands
+        │   ├── agent-architecture.md      # Agent/command/skill templates
+        │   └── collaboration-protocol.md  # Agent coordination rules
         └── tools/
-            └── init-structure.sh      # Creates .claude/ directory skeleton
+            └── init-structure.sh    # Directory + memory initialization
 ```
 
-### Genesis Protocol Flow
+## Genesis Protocol Flow
 
-1. **Expand**: `prompts/expand-idea.md` converts a 1-sentence idea into structured JSON containing tech stack, critical rules, and agent definitions
-2. **Scaffold**: `tools/init-structure.sh` creates directories: `.claude/{agents,commands,docs,memory}`
-3. **Build**: Uses `cookbook/agent-architecture.md` templates to write agent files, docs (ARCHITECTURE.md, RULES.md), and commands
-4. **Handoff**: Summarizes the created team and prompts to run `/develop`
+1. **Expand** (`prompts/expand-idea.md`)
+   - Analyzes idea for feasibility, security, complexity
+   - Identifies project type (web-app, api, cli, mobile, data-pipeline)
+   - Produces Genesis Specification JSON with:
+     - Tech stack, features, data models, API endpoints
+     - Agent definitions with personalities
+     - Workflow phases and commands
+     - Memory initialization data
 
-### Genesis Specification JSON Schema
+2. **Scaffold** (`tools/init-structure.sh`)
+   - Creates `.claude/{agents,commands,docs,memory,skills}`
+   - Initializes memory files: context.md, tasks.md, decisions.md, handoffs.md
+   - Creates placeholder ARCHITECTURE.md and RULES.md
 
-The expand prompt produces JSON with:
-- `project_name`: Project identifier
-- `tech_stack`: Frontend, backend, database choices
-- `critical_rules`: Array of project constraints
-- `agents`: Array of agent definitions (filename, name, specialty, personality_prompt)
-- `docs`: Array of documentation files to generate
+3. **Build** (using cookbook templates)
+   - Writes agent files from `cookbook/agent-architecture.md` templates
+   - Writes documentation from spec outlines
+   - Creates `/develop` command for workflow
 
-### Agent "Holy Trinity" Pattern
+4. **Handoff**
+   - Summarizes created team
+   - Prompts to run `/develop plan`
 
-Projects typically scaffold three core agents:
-- **The Builder**: Writes code
-- **The Critic**: Reviews and validates
-- **The Manager**: Coordinates and delegates
+## Agent System
 
-### File Frontmatter Requirements
+### Holy Trinity (Default)
+- **The Builder**: Implements features, balanced/concise/speed-focused
+- **The Critic**: Reviews code, cautious/technical/quality-focused
+- **The Manager**: Coordinates work, balanced/verbose/quality-focused
 
-**Agents** (`.claude/agents/*.md`) require:
-- `name`, `description`, `icon`, `permissions`, `model`
+### Specialists (Created When Needed)
+- The Architect, Security Expert, Data Engineer, DevOps, Tester
 
-**Commands** (`.claude/commands/*.md`) require:
-- `description`, `argument-hint` (optional)
+### Personality Dimensions
+- **Style**: cautious | balanced | aggressive
+- **Communication**: verbose | concise | technical
+- **Focus**: quality | speed | innovation
+
+## Memory System
+
+| File | Purpose |
+|------|---------|
+| `context.md` | Project state, phase, current focus |
+| `tasks.md` | Task board (backlog/in-progress/done) |
+| `decisions.md` | Architectural Decision Records |
+| `handoffs.md` | Agent-to-agent communication log |
+
+## Collaboration Protocol
+
+Agents follow defined rules for:
+- **Handoffs**: Explicit context passing between agents
+- **Memory**: Shared read/write to memory files
+- **Conflicts**: Priority hierarchy (Security > Performance > Features)
+- **Escalation**: When uncertain, ask the human
 
 ## Key Files to Modify
 
-- `prompts/expand-idea.md`: Change how ideas are analyzed and expanded
-- `cookbook/agent-architecture.md`: Modify agent/command templates
-- `tools/init-structure.sh`: Adjust default directory structure
+| Goal | File |
+|------|------|
+| Change idea analysis | `prompts/expand-idea.md` |
+| Modify agent templates | `cookbook/agent-architecture.md` |
+| Adjust collaboration rules | `cookbook/collaboration-protocol.md` |
+| Customize personalities | `prompts/agent-personalities.md` |
+| Change directory structure | `tools/init-structure.sh` |
+| Modify development workflow | `commands/develop.md` |
+
+## Genesis Specification Schema
+
+The expand prompt produces JSON with:
+- `project_name`, `project_type`, `description`
+- `tech_stack`: frontend, backend, database, infrastructure
+- `features[]`: name, priority, complexity, tasks[]
+- `data_models[]`: name, fields, relationships
+- `api_endpoints[]`: method, path, description, auth_required
+- `critical_rules[]`: development constraints
+- `agents[]`: filename, name, role, specialty, personality, triggers, system_prompt
+- `workflow`: phases[], commands{}
+- `docs[]`: filename, purpose, outline[]
+- `memory_init`: context, decisions, tasks (initial content)
