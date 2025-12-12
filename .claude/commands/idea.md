@@ -1,7 +1,7 @@
 ---
 description: Bootstraps a project using the Project Genesis skill.
 argument-hint: [project_description]
-model: claude-3-7-sonnet-20250219
+model: inherit
 ---
 
 # Project Genesis Protocol
