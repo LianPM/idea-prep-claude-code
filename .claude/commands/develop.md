@@ -7,6 +7,53 @@ argument-hint: [task-id | feature-name | "next"]
 
 **Goal**: Execute the development workflow for "$ARGUMENTS"
 
+## ⚠️ INITIALIZATION GATE (REQUIRED FIRST STEP)
+
+Before doing ANYTHING else, you MUST check if Project Genesis has been initialized:
+
+### Check 1: Memory System
+```
+Read .claude/memory/context.md
+```
+If file does not exist → STOP and show initialization prompt below.
+
+### Check 2: Agents Exist
+```
+Check if .claude/agents/ directory has at least one .md file
+```
+If no agents found → STOP and show initialization prompt below.
+
+### Initialization Required Prompt
+
+If either check fails, display this and DO NOT proceed:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ⚠️  Project Genesis Not Initialized                    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  This project hasn't been set up with Project Genesis.  │
+│                                                         │
+│  To get started, run:                                   │
+│                                                         │
+│    /idea [your project description]                     │
+│                                                         │
+│  Example:                                               │
+│    /idea A task management app with team collaboration  │
+│                                                         │
+│  This will:                                             │
+│    ✓ Analyze your idea                                  │
+│    ✓ Create your AI agent team                          │
+│    ✓ Set up the development workflow                    │
+│    ✓ Initialize project memory                          │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**STOP HERE if not initialized. Do not continue to Phase Detection.**
+
+---
+
 ## Phase Detection
 
 First, read `.claude/memory/context.md` to determine current project phase:

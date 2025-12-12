@@ -8,14 +8,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-| Command | Purpose |
-|---------|---------|
-| `/idea [description]` | Bootstrap a new project from an idea |
-| `/develop plan` | Break features into tasks |
-| `/develop next` | Start next available task |
-| `/develop [task-id]` | Work on specific task |
-| `/develop review` | Request code review |
-| `/develop status` | Show project progress |
+| Command | Purpose | Requires Init |
+|---------|---------|---------------|
+| `/idea [description]` | Bootstrap a new project from an idea | No |
+| `/status` | Check initialization and project state | No |
+| `/develop plan` | Break features into tasks | **Yes** |
+| `/develop next` | Start next available task | **Yes** |
+| `/develop [task-id]` | Work on specific task | **Yes** |
+| `/develop review` | Request code review | **Yes** |
+
+## Initialization Gate
+
+**IMPORTANT**: The `/develop` command includes a mandatory initialization check.
+
+Before executing, it verifies:
+1. `.claude/memory/context.md` exists
+2. At least one agent exists in `.claude/agents/`
+
+If not initialized, it displays a prompt directing users to run `/idea` first.
+
+Use `/status` to check initialization state at any time.
 
 ## Architecture
 
@@ -23,7 +35,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 .claude/
 ├── commands/
 │   ├── idea.md              # Entry point - triggers Project Genesis
-│   └── develop.md           # Main development workflow
+│   ├── develop.md           # Main development workflow (gated)
+│   └── status.md            # Initialization & state check
+├── hooks/
+│   └── pre-command.md       # Initialization gate documentation
 └── skills/
     └── project-genesis/
         ├── SKILL.md         # Skill definition
