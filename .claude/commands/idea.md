@@ -74,7 +74,83 @@ I work with:
 3. Follow the collaboration protocol in `.claude/memory/handoffs.md`
 ```
 
-## Step 4: Create Documentation
+## Step 4: Create Skills
+
+Read `cookbook/skill-template.md` for the skill file format.
+
+For **each skill** in the Genesis Specification `skills` array:
+
+1. Create `.claude/skills/{skill.name}/SKILL.md`:
+
+```yaml
+---
+name: "{skill.name}"
+description: >
+  {skill.description}
+---
+
+# {Skill Name (title case)}
+
+{skill.purpose}
+
+## When to Use
+
+This skill activates when:
+{list skill.triggers}
+
+## Instructions
+
+{list skill.instructions as numbered steps}
+
+## Reference
+
+{Domain-specific content based on the skill's purpose}
+
+## Constraints
+
+- Follow .claude/docs/RULES.md
+- Update .claude/memory/context.md when relevant
+```
+
+**Note**: Scale skills to complexity:
+- Simple projects: 1 skill (code-standards)
+- Medium projects: 2-3 skills
+- Complex projects: 3-5 domain-specific skills
+
+## Step 5: Configure Hooks
+
+Read `cookbook/hook-patterns.md` for hook configuration patterns.
+
+Update `.claude/settings.json` with the UserPromptSubmit hook:
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{domain-appropriate command from Genesis Spec hooks}"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Default hook command** (if no domain-specific hook defined):
+```bash
+if [ -f .claude/memory/context.md ]; then echo '📋 Project Context:' && head -20 .claude/memory/context.md && echo '' && echo '---'; fi
+```
+
+**Domain-specific examples**:
+- Healthcare: `echo '🏥 HIPAA Reminder: Never log PHI' && cat .claude/memory/context.md 2>/dev/null`
+- Fintech: `echo '💰 Compliance: Audit all transactions' && cat .claude/memory/context.md 2>/dev/null`
+- E-commerce: `echo '🛒 PCI-DSS: Secure payment data' && cat .claude/memory/context.md 2>/dev/null`
+
+## Step 6: Create Documentation
 
 Using the Genesis Specification:
 
@@ -111,13 +187,13 @@ Using the Genesis Specification:
 
 4. **Update `.claude/memory/tasks.md`** with features as initial backlog
 
-## Step 5: Create Workflow Command
+## Step 7: Create Workflow Command
 
 The `/develop` command already exists and will work with any agent team.
 
 It uses dynamic agent invocation based on task assignments, so it doesn't need to know agent names in advance.
 
-## Step 6: Handoff
+## Step 8: Handoff
 
 Present a summary to the user:
 
@@ -136,6 +212,19 @@ Present a summary to the user:
 │                                                         │
 │  {For each agent:}                                      │
 │  • {agent.name} - {agent.expertise}                     │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│  🧠 Skills Installed                                    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  {For each skill:}                                      │
+│  • {skill.name} - {skill.purpose}                       │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│  🪝 Hooks Configured                                    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  • UserPromptSubmit - {hooks.UserPromptSubmit.purpose}  │
 │                                                         │
 ├─────────────────────────────────────────────────────────┤
 │  📋 Initial Backlog                                     │

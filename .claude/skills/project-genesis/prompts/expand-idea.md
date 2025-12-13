@@ -38,6 +38,16 @@ Before generating anything, analyze:
    - What development workflows will exist?
    - Where are the handoff points?
 
+5. **Skills Needed**
+   - What domain-specific knowledge should be encoded as skills?
+   - What validation or checking patterns are needed repeatedly?
+   - What standards or conventions must be enforced?
+
+6. **Automation Opportunities (Hooks)**
+   - What should happen automatically when the user submits a prompt?
+   - What context should always be loaded?
+   - What guardrails should be enforced?
+
 ### Step 2: Team Design Principles
 
 Design agents that:
@@ -46,7 +56,29 @@ Design agents that:
 - **Work together** - Clear handoff points between agents
 - **Match the scale** - Don't over-engineer simple projects
 
-### Step 3: Agent Creation Guidelines
+### Step 3: Skill Design Principles
+
+Design domain-aware skills that:
+- **Encode expertise** - Capture domain knowledge that Claude wouldn't know by default
+- **Enforce standards** - Ensure code/process compliance automatically
+- **Trigger contextually** - Clear descriptions so Claude knows when to use them
+- **Stay focused** - One skill = one capability (not a catch-all)
+
+**Skill Examples by Domain**:
+- Fintech: `compliance-checker`, `audit-logger`, `pci-validator`
+- Healthcare: `hipaa-enforcer`, `clinical-terminology`, `phi-detector`
+- E-commerce: `payment-validator`, `inventory-checker`, `fraud-detector`
+- API: `rate-limit-enforcer`, `schema-validator`, `versioning-guide`
+
+### Step 4: Hook Design (UserPromptSubmit)
+
+The UserPromptSubmit hook fires when the user sends any message. Use it for:
+- **Context loading** - Auto-read memory files before processing
+- **Guardrails** - Remind about critical rules or constraints
+- **Logging** - Track what's being worked on
+- **State checking** - Verify project is in expected state
+
+### Step 5: Agent Creation Guidelines
 
 For each agent, define:
 
@@ -131,7 +163,26 @@ Output strictly as JSON (no markdown wrapping):
       "purpose": "string",
       "outline": ["string"]
     }
-  ]
+  ],
+
+  "skills": [
+    {
+      "name": "string (kebab-case, domain-relevant)",
+      "description": "string (what it does + when to use it)",
+      "purpose": "string (why this project needs this skill)",
+      "triggers": ["string (keywords that should activate this skill)"],
+      "instructions": ["string (step-by-step guidance)"],
+      "allowed_tools": ["string (optional: restrict to specific tools)"]
+    }
+  ],
+
+  "hooks": {
+    "UserPromptSubmit": {
+      "enabled": true,
+      "purpose": "string (what this hook does for this project)",
+      "actions": ["string (what happens when user submits a prompt)"]
+    }
+  }
 }
 ```
 
@@ -149,6 +200,14 @@ Output strictly as JSON (no markdown wrapping):
 - **The Stress Tester** - Load testing, chaos engineering, failure scenarios
 - **The Compliance Officer** - Regulatory requirements, audit logging, documentation
 
+**Generated Skills**:
+- `sec-compliance` - SEC/FINRA regulatory requirements, trade reporting rules
+- `latency-checker` - Validates code for performance anti-patterns, microsecond budgets
+- `audit-logger` - Ensures all transactions have proper audit trails
+
+**Generated Hooks**:
+- `UserPromptSubmit` - Auto-loads trading rules context, reminds about compliance requirements
+
 ### Example 2: "A simple recipe sharing app"
 
 **Analysis reveals**: Simple CRUD, content-focused, community features, straightforward tech
@@ -157,6 +216,12 @@ Output strictly as JSON (no markdown wrapping):
 - **The Kitchen Craftsman** - Builds features, pragmatic full-stack work
 - **The Recipe Critic** - Reviews code, ensures quality, catches bugs
 - **The Sous Chef** - Handles deployment, keeps things running
+
+**Generated Skills** (minimal for simple project):
+- `code-standards` - Project conventions, naming, file structure
+
+**Generated Hooks**:
+- `UserPromptSubmit` - Loads current task context from memory
 
 ### Example 3: "An AI-powered medical diagnosis assistant"
 
@@ -169,6 +234,15 @@ Output strictly as JSON (no markdown wrapping):
 - **The Accuracy Auditor** - Testing, validation, edge cases, false positive/negative analysis
 - **The Integration Specialist** - EHR systems, HL7/FHIR, healthcare APIs
 - **The Explainability Expert** - Model interpretability, decision reasoning, clinician trust
+
+**Generated Skills**:
+- `hipaa-enforcer` - HIPAA compliance rules, PHI handling requirements
+- `clinical-terminology` - Medical terms, ICD codes, SNOMED CT vocabulary
+- `phi-detector` - Identifies potential PHI in code comments, logs, test data
+- `model-accuracy` - ML validation patterns, accuracy thresholds, bias detection
+
+**Generated Hooks**:
+- `UserPromptSubmit` - Reminds about PHI handling, loads compliance context
 
 ## Key Principles
 

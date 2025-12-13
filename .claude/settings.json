@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "agent-skill-creator-plugin@agent-skill-creator": true,
+    "example-skills@anthropic-agent-skills": true
+  }
+}
